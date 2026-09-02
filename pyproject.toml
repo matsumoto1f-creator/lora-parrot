@@ -1,0 +1,22 @@
+[project]
+name = "lora-parrot"
+version = "0.1.0"
+description = "A fine-tuning bench whose control arm is a real trained adapter. Train one LoRA on correct labels and one on labels drawn independently of the input, and measure how much of the reported improvement the second one also delivers."
+requires-python = ">=3.11"
+dependencies = ["mlx-lm>=0.31", "pydantic>=2.7"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+lora-parrot = "lora_parrot.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lora_parrot"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

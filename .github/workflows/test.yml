@@ -1,0 +1,21 @@
+name: test
+on:
+  push: {branches: [main]}
+  pull_request:
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  test:
+    # MLX is Apple-silicon only, so the training arms cannot run on a GitHub runner.
+    # The tests that guard the CONTROL -- that the parrot set sits at chance, that the two
+    # arms differ only in the label, that scoring separates format from content -- do run
+    # here, and they are the ones that decide whether the experiment means anything.
+    # The training tests skip themselves rather than being silently absent.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install pytest pydantic
+      - run: pip install -e . --no-deps
+      - run: pytest -q -rs
