@@ -18,4 +18,6 @@ jobs:
         with: {python-version: "3.11"}
       - run: pip install pytest pydantic
       - run: pip install -e . --no-deps
+      # -rs prints the skip reasons, so a test that quietly stopped running is visible
+      # in the log rather than looking like a pass.
       - run: pytest -q -rs

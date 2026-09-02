@@ -1,5 +1,6 @@
 """What this bench claims. The training tests need Apple silicon; the rest do not."""
 
+import importlib.util
 import json
 from pathlib import Path
 
@@ -9,7 +10,12 @@ from lora_parrot.evaluate import Result, parrot_share, score_one
 from lora_parrot.task import (CATEGORIES, build_split, label_agreement, prompt_for,
                               target_for, write_jsonl)
 
-mlx = pytest.importorskip("mlx.core", reason="MLX runs on Apple silicon only")
+# NOT a module-level importorskip. That skipped the whole file on Linux -- all seven
+# tests, including every one that guards the CONTROL and needs no MLX at all -- and left
+# pytest exiting 5 with nothing run, under a CI comment claiming the opposite. The skip
+# belongs on the two tests that actually load weights.
+HAS_MLX = importlib.util.find_spec("mlx") is not None
+needs_mlx = pytest.mark.skipif(not HAS_MLX, reason="MLX runs on Apple silicon only")
 
 
 def test_the_parrot_set_carries_no_mapping(tmp_path):
@@ -72,6 +78,7 @@ def test_determinism():
     assert target_for("billing") == ' {"category": "billing"}'
 
 
+@needs_mlx
 @pytest.mark.skipif(not Path("adapters/domain").exists(),
                     reason="run `lora-parrot train` first")
 def test_the_measured_result_holds():
